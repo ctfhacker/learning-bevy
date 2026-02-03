@@ -98,8 +98,30 @@
             pkgs.systemd
             pkgs.wasm-bindgen-cli
             pkgs.wayland
+            pkgs.xorg.libX11
+            pkgs.xorg.libXcursor
+            pkgs.xorg.libXi
+            pkgs.xorg.libXrandr
+            pkgs.libxkbcommon
+            pkgs.xorg.xvfb
+            pkgs.udev
+            pkgs.vulkan-loader
+            pkgs.libGL
+            pkgs.mesa
           ];
+
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
+
+          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+            pkgs.xorg.libX11
+            pkgs.xorg.libXcursor
+            pkgs.xorg.libXi
+            pkgs.xorg.libXrandr
+            pkgs.libxkbcommon
+            pkgs.libGL
+            pkgs.vulkan-loader
+            pkgs.mesa
+          ];
 
           PKG_CONFIG_PATH = pkgs.lib.makeSearchPath "lib/pkgconfig" [
             pkgs.alsa-lib
@@ -108,7 +130,7 @@
           ];
 
           shellHook = ''
-            if [ -f Cargo.toml ] && bevy lint -- --version >/dev/null 2>&1; then
+            if bevy lint -- --version >/dev/null 2>&1; then
               echo "bevy lint: OK (installed)"
             else
               echo "warning: 'bevy lint' failed in dev shell; ensure bevy_lint is on PATH"
