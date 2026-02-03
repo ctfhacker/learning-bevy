@@ -91,6 +91,7 @@
             bevy-lint
             rustToolchain
             pkgs.cargo-generate
+            pkgs.dioxus-cli
             pkgs.pkg-config
             pkgs.rustup
             pkgs.alsa-lib
@@ -108,6 +109,8 @@
             pkgs.vulkan-loader
             pkgs.libGL
             pkgs.mesa
+            pkgs.openssl
+            pkgs.lld
           ];
 
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
