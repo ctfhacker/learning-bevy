@@ -30,3 +30,7 @@ Render a few rectangles into the scene.
 ```
 dx serve --hot-patch --debug-symbols
 ```
+
+## Milestones 3
+
+Create specific cards with specific attributes

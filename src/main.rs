@@ -11,6 +11,13 @@ struct Table;
 #[derive(Message, Debug)]
 struct RebuildWorld;
 
+#[derive(Component, Debug, Clone)]
+struct Card {
+    name: &'static str,
+    value: u8,
+    base_fame: u8,
+}
+
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -66,7 +73,33 @@ fn reset_world(
 /// Setup the world with initial entities
 #[hot]
 fn setup(commands: &mut ChildSpawnerCommands<'_>) {
-    let card_size = Vec2::new(220.0, 320.0);
+    let cards = [
+        Card {
+            name: "Ostrich",
+            value: 1,
+            base_fame: 1,
+        },
+        Card {
+            name: "Eagle",
+            value: 4,
+            base_fame: 2,
+        },
+        Card {
+            name: "Dog",
+            value: 5,
+            base_fame: 0,
+        },
+        Card {
+            name: "Camel",
+            value: 8,
+            base_fame: 2,
+        },
+        Card {
+            name: "Rabbit",
+            value: 9,
+            base_fame: 3,
+        },
+    ];
 
     // Create a table
     commands.spawn((
@@ -75,21 +108,19 @@ fn setup(commands: &mut ChildSpawnerCommands<'_>) {
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
-    // Create a card zone
-    commands.spawn((
-        Sprite::from_color(Color::srgb(0.9, 0.8, 0.85), card_size),
-        Transform::from_xyz(-300.0, 0.0, 0.0),
-    ));
+    // Draw all of the cards on the table
+    let card_size = Vec2::new(120.0, 220.0);
+    for (i, card) in cards.into_iter().enumerate() {
+        let x = -360.0 + i as f32 * 180.0;
+        let y = 0.0;
 
-    // Create a card zone
-    commands.spawn((
-        Sprite::from_color(Color::srgb(0.9, 0.8, 0.85), card_size),
-        Transform::from_xyz(0.0, 100.0, 0.0),
-    ));
-
-    // Create a card zone
-    commands.spawn((
-        Sprite::from_color(Color::srgb(0.9, 0.8, 0.85), card_size),
-        Transform::from_xyz(300.0, 0.0, 0.0),
-    ));
+        commands.spawn((
+            card,
+            Sprite::from_color(
+                Color::srgb(0.2 + 0.2 * i as f32, 1.0 - 0.1 * i as f32, 0.88),
+                card_size,
+            ),
+            Transform::from_xyz(x, y, 0.0),
+        ));
+    }
 }
