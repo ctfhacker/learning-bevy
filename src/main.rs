@@ -162,7 +162,10 @@ fn click_to_print(
     // Check each card's bounds to see if the click landed on it.
     for (card, visual, transform) in &cards {
         if point_in_aabb(click_pos, transform.translation.truncate(), visual.size) {
-            info!("clicked card {}", card.name);
+            info!(
+                "clicked card {} value {} base fame {}",
+                card.name, card.value, card.base_fame
+            );
             return;
         }
     }
