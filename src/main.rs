@@ -18,13 +18,21 @@ struct Card {
     base_fame: u8,
 }
 
+#[derive(Component, Debug, Clone)]
+struct CardVisual {
+    size: Vec2,
+}
+
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(SimpleSubsecondPlugin::default())
         .add_message::<RebuildWorld>()
         .add_systems(Startup, boot)
-        .add_systems(Update, (reset_world, check_hotpatch.run_if(run_once)))
+        .add_systems(
+            Update,
+            (reset_world, check_hotpatch.run_if(run_once), click_to_print),
+        )
         .run()
 }
 
@@ -116,6 +124,7 @@ fn setup(commands: &mut ChildSpawnerCommands<'_>) {
 
         commands.spawn((
             card,
+            CardVisual { size: card_size },
             Sprite::from_color(
                 Color::srgb(0.2 + 0.2 * i as f32, 1.0 - 0.1 * i as f32, 0.88),
                 card_size,
@@ -123,4 +132,52 @@ fn setup(commands: &mut ChildSpawnerCommands<'_>) {
             Transform::from_xyz(x, y, 0.0),
         ));
     }
+}
+
+/// Click on a card and print the card name
+#[hot]
+fn click_to_print(
+    buttons: Res<ButtonInput<MouseButton>>,
+    window: Single<&Window>,
+    camera_query: Single<(&Camera, &GlobalTransform)>,
+    cards: Query<(&Card, &CardVisual, &Transform)>,
+) {
+    // Only react to a completed left-click to avoid repeated processing.
+    if !buttons.just_released(MouseButton::Left) {
+        return;
+    }
+
+    // Abort if the cursor is outside the window.
+    let Some(cursor) = window.cursor_position() else {
+        return;
+    };
+
+    // Convert the screen-space cursor position into world-space.
+    let (camera, camera_transform) = *camera_query;
+
+    let Ok(click_pos) = camera.viewport_to_world_2d(camera_transform, cursor) else {
+        return;
+    };
+
+    // Check each card's bounds to see if the click landed on it.
+    for (card, visual, transform) in &cards {
+        if point_in_aabb(click_pos, transform.translation.truncate(), visual.size) {
+            info!("clicked card {}", card.name);
+            return;
+        }
+    }
+
+    // Fall back when no card matched the click.
+    info!("Clicked no card");
+}
+
+/// Returns true if the given point is within the rectangle with `center` and `size`
+#[hot]
+fn point_in_aabb(point: Vec2, center: Vec2, size: Vec2) -> bool {
+    let half = size * 0.5;
+
+    point.x >= center.x - half.x
+        && point.x <= center.x + half.x
+        && point.y >= center.y - half.y
+        && point.y <= center.y + half.y
 }
