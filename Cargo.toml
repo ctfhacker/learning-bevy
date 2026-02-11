@@ -7,7 +7,7 @@ edition = "2024"
 [dependencies]
 bevy = { version = "0.18" }
 bevy_hotpatching_experiments = "0.4.0"
-rand = "0.9"
+rand = "0.10"
 # Compile out low-severity logs to improve performance.
 # Remove these features if you want to profile your game with tracy.
 # (see <https://github.com/bevyengine/bevy/blob/main/docs/profiling.md#tracy-profiler>)
@@ -18,7 +18,7 @@ tracing = { version = "0.1", features = [
 number_crunch = { git = "https://github.com/ctfhacker/number_crunch" }
 
 [target.wasm32-unknown-unknown.dependencies]
-getrandom = { version = "0.3", features = ["wasm_js"] }
+getrandom = { version = "0.4", features = ["wasm_js"] }
 
 [features]
 # Default to a native dev build.

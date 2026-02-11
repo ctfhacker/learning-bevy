@@ -2681,11 +2681,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26145e563e54f2cadc477553f1ec5ee650b00862f0a58bcd12cbdc5f0ea2d2f4"
 dependencies = [
  "cfg-if",
- "js-sys",
  "libc",
  "r-efi",
  "wasi 0.14.7+wasi-0.2.4",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -2695,11 +2693,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "139ef39800118c7683f2fd3c98c1b23c09ae076556b435f8e9064ae108aaeeec"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "r-efi",
  "rand_core 0.10.0",
  "wasip2",
  "wasip3",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -3507,9 +3507,9 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_hotpatching_experiments",
- "getrandom 0.3.3",
+ "getrandom 0.4.1",
  "number_crunch",
- "rand 0.9.2",
+ "rand 0.10.0",
  "tracing",
 ]
 
@@ -3642,6 +3642,7 @@ dependencies = [
 [[package]]
 name = "number_crunch"
 version = "0.1.0"
+source = "git+https://github.com/ctfhacker/number_crunch#6d268510bbbfcb8f294510e92d6bae3e0cb39f62"
 dependencies = [
  "rand 0.10.0",
 ]
