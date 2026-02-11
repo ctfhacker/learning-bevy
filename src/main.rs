@@ -70,13 +70,13 @@ fn boot(mut commands: Commands) {
 ///
 /// This works by despawning all entities that are children of the WorldRoot and then calling the setup
 /// function once more.
-#[hot(rerun_on_hot_patch = true)]
+#[cfg_attr(feature = "dev", hot(rerun_on_hot_patch = true))]
 fn check_hotpatch(mut event_writer: MessageWriter<RebuildWorld>) {
     event_writer.write(RebuildWorld);
 }
 
 /// Reset all of the child entities from the world root node
-#[hot]
+#[cfg_attr(feature = "dev", hot)]
 fn reset_world(
     mut commands: Commands,
     mut event_reader: MessageReader<RebuildWorld>,
@@ -98,7 +98,7 @@ fn reset_world(
 }
 
 /// Setup the world with initial entities
-#[hot]
+#[cfg_attr(feature = "dev", hot)]
 fn setup(commands: &mut ChildSpawnerCommands<'_>, state: Res<GameState>) {
     // Fixed board size in world units (taller than wide).
     let board_size = Vec2::new(480.0, 720.0);
@@ -162,7 +162,7 @@ fn setup(commands: &mut ChildSpawnerCommands<'_>, state: Res<GameState>) {
 }
 
 /// Click on a card and print the card name
-#[hot]
+#[cfg_attr(feature = "dev", hot)]
 fn click_to_print(
     buttons: Res<ButtonInput<MouseButton>>,
     window: Single<&Window>,
@@ -199,7 +199,7 @@ fn click_to_print(
 }
 
 /// Returns true if the given point is within the rectangle with `center` and `size`
-#[hot]
+#[cfg_attr(feature = "dev", hot)]
 fn point_in_aabb(point: Vec2, center: Vec2, size: Vec2) -> bool {
     let half = size * 0.5;
 
