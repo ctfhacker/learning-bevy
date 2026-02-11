@@ -100,23 +100,55 @@ fn reset_world(
 /// Setup the world with initial entities
 #[hot]
 fn setup(commands: &mut ChildSpawnerCommands<'_>, state: Res<GameState>) {
-    // Create a table
+    // Fixed board size in world units (taller than wide).
+    let board_size = Vec2::new(480.0, 720.0);
+    let grid_cols = 3.0;
+    let grid_rows = 3.0;
+    let board_inset = 48.0;
+    let inner_size = board_size - Vec2::splat(board_inset * 2.0);
+    let cell_size = Vec2::new(inner_size.x / grid_cols, inner_size.y / grid_rows);
+
+    // ^
+    // |
+    // x
+    //   y---->
+    // Place board on (0,0) in lower left of the screen.
+    let board_origin = Vec2::new(
+        -board_size.x * 0.5 + board_inset,
+        -board_size.y * 0.5 + board_inset,
+    );
+
+    // Table: wood base + felt surface to suggest depth.
     commands.spawn((
         Table,
-        Sprite::from_color(Color::srgb(0.12, 0.18, 0.12), Vec2::new(500.0, 1000.0)),
-        Transform::from_xyz(0.0, 0.0, 0.0),
+        Sprite::from_color(
+            Color::srgb(0.28, 0.18, 0.10),
+            board_size + Vec2::new(40.0, 40.0),
+        ),
+        Transform::from_xyz(0.0, 0.0, -2.0),
+    ));
+    commands.spawn((
+        Table,
+        Sprite::from_color(Color::srgb(0.12, 0.24, 0.14), board_size),
+        Transform::from_xyz(0.0, 0.0, -1.0),
     ));
 
     println!("{:?}", state.state.board);
 
-    // Draw all of the cards on the table
-    let card_size = Vec2::new(80.0, 100.0);
+    // Draw all of the cards on the table (lower-left origin mapping).
+    let card_size = cell_size * 0.78;
     for (i, card) in state.state.board.into_iter().enumerate() {
-        let x = -220.0 + 50.0 + (i % 3) as f32 * 120.0;
-        let y = (i / 3) as f32 * 120.0;
+        let col = (i % 3) as f32;
+        let row = (i / 3) as f32;
+        let center = board_origin + Vec2::new(cell_size.x * (col + 0.5), cell_size.y * (row + 0.5));
 
-        dbg!(x, y);
+        // Card shadow for depth.
+        commands.spawn((
+            Sprite::from_color(Color::srgba(0.0, 0.0, 0.0, 0.25), card_size * 1.02),
+            Transform::from_xyz(center.x + 6.0, center.y - 6.0, 0.0),
+        ));
 
+        // Spwan the actual card
         commands.spawn((
             Card { card },
             CardVisual { size: card_size },
@@ -124,7 +156,7 @@ fn setup(commands: &mut ChildSpawnerCommands<'_>, state: Res<GameState>) {
                 Color::srgb(0.2 + 0.2 * i as f32, 1.0 - 0.1 * i as f32, 0.88),
                 card_size,
             ),
-            Transform::from_xyz(x, y, 0.0),
+            Transform::from_xyz(center.x, center.y, 1.0),
         ));
     }
 }
