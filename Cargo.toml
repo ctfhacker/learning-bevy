@@ -15,8 +15,7 @@ tracing = { version = "0.1", features = [
     "max_level_debug",
     "release_max_level_warn",
 ] }
-# number_crunch = { git = "https://github.com/ctfhacker/number_crunch" }
-number_crunch = { path = "../number_crunch" }
+number_crunch = { git = "https://github.com/ctfhacker/number_crunch" }
 
 [target.wasm32-unknown-unknown.dependencies]
 getrandom = { version = "0.3", features = ["wasm_js"] }
