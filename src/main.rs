@@ -189,13 +189,13 @@ fn click_to_print(
     // Check each card's bounds to see if the click landed on it.
     for (card, visual, transform) in &cards {
         if point_in_aabb(click_pos, transform.translation.truncate(), visual.size) {
-            info!("clicked card {:?}", card,);
+            warn!("clicked card {:?}", card,);
             return;
         }
     }
 
     // Fall back when no card matched the click.
-    info!("Clicked no card");
+    warn!("Clicked no card");
 }
 
 /// Returns true if the given point is within the rectangle with `center` and `size`
