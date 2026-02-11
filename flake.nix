@@ -36,9 +36,9 @@
             owner = "TheBevyFlock";
             repo = "bevy_cli";
             rev = "main";
-            hash = "sha256-Swj7j/A7Mgd2ufSADZdGMXOLbmvpdHGJfQVFCaWX9yg=";
+            hash = "sha256-RLWxZhYhmcHzpAdv+MhShqBxqL4qEXFlZxUGUJKZjws=";
           };
-          cargoHash = "sha256-0r5rzUkdho0PDscCionjySdiG/6d5sv+Nv/4tfEMzP8=";
+          cargoHash = "sha256-CwtixuEFkwrgRmLG+vIfdX/C1s0Xtj3eXZtNGFUvQT8=";
           meta = with pkgs.lib; {
             description = "Bevy CLI";
             homepage = "https://github.com/TheBevyFlock/bevy_cli";
@@ -55,7 +55,7 @@
             owner = "TheBevyFlock";
             repo = "bevy_cli";
             rev = "main";
-            hash = "sha256-Swj7j/A7Mgd2ufSADZdGMXOLbmvpdHGJfQVFCaWX9yg=";
+            hash = "sha256-RLWxZhYhmcHzpAdv+MhShqBxqL4qEXFlZxUGUJKZjws=";
           };
           # bevy_lint expects a local Cargo.lock.
           prePatch = ''

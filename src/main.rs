@@ -12,21 +12,39 @@ struct Table;
 struct RebuildWorld;
 
 #[derive(Component, Debug, Clone)]
-struct Card {
-    name: &'static str,
-    value: u8,
-    base_fame: u8,
-}
-
-#[derive(Component, Debug, Clone)]
 struct CardVisual {
     size: Vec2,
+}
+
+#[derive(Resource, Default)]
+struct GameState {
+    state: number_crunch::State,
+}
+
+#[derive(Component, Debug)]
+struct Card {
+    card: number_crunch::Card,
+}
+
+impl From<number_crunch::Card> for Card {
+    fn from(card: number_crunch::Card) -> Card {
+        Card { card }
+    }
+}
+
+impl GameState {
+    pub fn new() -> Self {
+        GameState {
+            state: number_crunch::State::new(),
+        }
+    }
 }
 
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(SimpleSubsecondPlugin::default())
+        .insert_resource(GameState::new())
         .add_message::<RebuildWorld>()
         .add_systems(Startup, boot)
         .add_systems(
@@ -62,6 +80,7 @@ fn check_hotpatch(mut event_writer: MessageWriter<RebuildWorld>) {
 fn reset_world(
     mut commands: Commands,
     mut event_reader: MessageReader<RebuildWorld>,
+    state: Res<GameState>,
     root: Single<Entity, With<WorldRoot>>,
 ) {
     // If no event is here, ignore it
@@ -74,56 +93,32 @@ fn reset_world(
 
     // Ensure all actual game code is a child of the root node for easier hot patching
     commands.entity(*root).with_children(|parent| {
-        setup(parent);
+        setup(parent, state);
     });
 }
 
 /// Setup the world with initial entities
 #[hot]
-fn setup(commands: &mut ChildSpawnerCommands<'_>) {
-    let cards = [
-        Card {
-            name: "Ostrich",
-            value: 1,
-            base_fame: 1,
-        },
-        Card {
-            name: "Eagle",
-            value: 4,
-            base_fame: 2,
-        },
-        Card {
-            name: "Dog",
-            value: 5,
-            base_fame: 0,
-        },
-        Card {
-            name: "Camel",
-            value: 8,
-            base_fame: 2,
-        },
-        Card {
-            name: "Rabbit",
-            value: 9,
-            base_fame: 3,
-        },
-    ];
-
+fn setup(commands: &mut ChildSpawnerCommands<'_>, state: Res<GameState>) {
     // Create a table
     commands.spawn((
         Table,
-        Sprite::from_color(Color::srgb(0.12, 0.18, 0.12), Vec2::new(1200.0, 700.0)),
+        Sprite::from_color(Color::srgb(0.12, 0.18, 0.12), Vec2::new(500.0, 1000.0)),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
+    println!("{:?}", state.state.board);
+
     // Draw all of the cards on the table
-    let card_size = Vec2::new(120.0, 220.0);
-    for (i, card) in cards.into_iter().enumerate() {
-        let x = -360.0 + i as f32 * 180.0;
-        let y = 0.0;
+    let card_size = Vec2::new(80.0, 100.0);
+    for (i, card) in state.state.board.into_iter().enumerate() {
+        let x = -220.0 + 50.0 + (i % 3) as f32 * 120.0;
+        let y = (i / 3) as f32 * 120.0;
+
+        dbg!(x, y);
 
         commands.spawn((
-            card,
+            Card { card },
             CardVisual { size: card_size },
             Sprite::from_color(
                 Color::srgb(0.2 + 0.2 * i as f32, 1.0 - 0.1 * i as f32, 0.88),
@@ -162,10 +157,7 @@ fn click_to_print(
     // Check each card's bounds to see if the click landed on it.
     for (card, visual, transform) in &cards {
         if point_in_aabb(click_pos, transform.translation.truncate(), visual.size) {
-            info!(
-                "clicked card {} value {} base fame {}",
-                card.name, card.value, card.base_fame
-            );
+            info!("clicked card {:?}", card,);
             return;
         }
     }
