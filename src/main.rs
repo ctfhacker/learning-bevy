@@ -14,6 +14,7 @@ struct RebuildWorld;
 #[derive(Component, Debug, Clone)]
 struct CardVisual {
     size: Vec2,
+    color: Color,
 }
 
 #[derive(Resource, Default)]
@@ -49,7 +50,12 @@ fn main() -> AppExit {
         .add_systems(Startup, boot)
         .add_systems(
             Update,
-            (reset_world, check_hotpatch.run_if(run_once), click_to_print),
+            (
+                reset_world,
+                check_hotpatch.run_if(run_once),
+                click_to_print,
+                hover_to_print,
+            ),
         )
         .run()
 }
@@ -148,16 +154,40 @@ fn setup(commands: &mut ChildSpawnerCommands<'_>, state: Res<GameState>) {
             Transform::from_xyz(center.x + 6.0, center.y - 6.0, 0.0),
         ));
 
+        let original_color = Color::srgb(0.2 + 0.2 * i as f32, 1.0 - 0.1 * i as f32, 0.88);
+
         // Spwan the actual card
-        commands.spawn((
-            Card { card },
-            CardVisual { size: card_size },
-            Sprite::from_color(
-                Color::srgb(0.2 + 0.2 * i as f32, 1.0 - 0.1 * i as f32, 0.88),
-                card_size,
-            ),
-            Transform::from_xyz(center.x, center.y, 1.0),
-        ));
+        commands
+            .spawn((
+                Card { card },
+                CardVisual {
+                    size: card_size,
+                    color: original_color,
+                },
+                Pickable::default(),
+                Sprite::from_color(original_color, card_size),
+                Transform::from_xyz(center.x, center.y, 1.0),
+            ))
+            .observe(|over: On<Pointer<Over>>, mut cards: Query<&mut Sprite>| {
+                if let Ok(mut sprite) = cards.get_mut(over.entity) {
+                    sprite.color = Color::srgb(0.9, 0.1, 0.1);
+                }
+            })
+            .observe(
+                |over: On<Pointer<Out>>, mut cards: Query<(&mut Sprite, &CardVisual)>| {
+                    if let Ok((mut sprite, visual)) = cards.get_mut(over.entity) {
+                        sprite.color = visual.color;
+                    }
+                },
+            );
+    }
+}
+
+/// Click on a card and print the card name
+#[cfg_attr(feature = "dev", hot)]
+fn hover_to_print(cards: Query<(&Card, &Pointer<Over>)>) {
+    for (card, _over) in &cards {
+        warn!("Hovered: {card:?}");
     }
 }
 
